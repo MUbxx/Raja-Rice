@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Approval</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/qrious"></script>
+</head>
+<body>
+
+<h2>Admin Approval</h2>
+
+<p>Approval Code: <span id="codeDisplay"></span></p>
+
+<button onclick="approve()">Approve Bill ✅</button>
+
+<canvas id="qr"></canvas>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get("code");
+document.getElementById("codeDisplay").innerText = code;
+
+function approve() {
+  const cart = JSON.parse(localStorage.getItem("cart"));
+
+  const qr = new QRious({
+    element: document.getElementById("qr"),
+    size: 250,
+    value: JSON.stringify({
+      code: code,
+      cart: cart
+    })
+  });
+
+  alert("Approved — QR Generated");
+}
+</script>
+
+</body>
+</html>
