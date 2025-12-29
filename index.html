@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Grocery Shop</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <h2>🛒 Smart Grocery Shop</h2>
+  <input id="searchBox" placeholder="Search பொருள் / Product name">
+</div>
+
+<div id="productContainer" class="grid"></div>
+
+<div class="cartBox">
+  <h3>Cart 🧾</h3>
+  <div id="cartItems"></div>
+  <h3>Total: ₹<span id="totalAmount">0</span></h3>
+  <button id="generateQR">Generate QR Bill</button>
+</div>
+
+<script>
+const GITHUB_JSON_URL = "https://raw.githubusercontent.com/MUbxx/Raja-Rice/main/products.json";
+
+let products = [];
+let cart = [];
+
+async function loadProducts() {
+  const res = await fetch(GITHUB_JSON_URL);
+  const data = await res.json();
+  products = data.categories;
+  renderProducts(products);
+}
+
+function renderProducts(list) {
+  const container = document.getElementById("productContainer");
+  container.innerHTML = "";
+
+  list.forEach(cat => {
+    cat.products.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h4>${p.name_ta} <br> <small>${p.name_en}</small></h4>
+        <p>₹${p.price}</p>
+        <button onclick='addToCart(${JSON.stringify(p)})'>Add</button>
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+function addToCart(p) {
+  cart.push(p);
+  renderCart();
+}
+
+function renderCart() {
+  const list = document.getElementById("cartItems");
+  list.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((c, i) => {
+    total += c.price;
+    list.innerHTML += `<div>${c.name_ta} - ₹${c.price} <span onclick="removeItem(${i})">❌</span></div>`;
+  });
+
+  document.getElementById("totalAmount").innerText = total;
+}
+
+function removeItem(i) {
+  cart.splice(i, 1);
+  renderCart();
+}
+
+document.getElementById("searchBox").addEventListener("input", e => {
+  const t = e.target.value.toLowerCase();
+  const filtered = products.map(c => ({
+    ...c,
+    products: c.products.filter(
+      p => p.name_ta.toLowerCase().includes(t) ||
+           p.name_en.toLowerCase().includes(t)
+    )
+  }));
+  renderProducts(filtered);
+});
+
+document.getElementById("generateQR").onclick = () => {
+  const code = Math.floor(100000 + Math.random()*900000);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem("code", code);
+  window.location.href = `admin.html?code=${code}`;
+};
+
+loadProducts();
+</script>
+</body>
+</html>
