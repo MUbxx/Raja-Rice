@@ -1,0 +1,31 @@
+{
+  "categories": [
+    {
+      "name_ta": "அரிசி",
+      "name_en": "Rice",
+      "products": [
+        {"name_ta": "பச்சரிசி", "name_en": "Raw Rice", "price": 58},
+        {"name_ta": "புழுங்கல் அரிசி", "name_en": "Boiled Rice", "price": 55},
+        {"name_ta": "பாஸ்மதி அரிசி", "name_en": "Basmati Rice", "price": 120}
+      ]
+    },
+    {
+      "name_ta": "எண்ணெய்",
+      "name_en": "Oil",
+      "products": [
+        {"name_ta": "எள்ளு எண்ணெய்", "name_en": "Gingelly Oil", "price": 220},
+        {"name_ta": "தேங்காய் எண்ணெய்", "name_en": "Coconut Oil", "price": 190},
+        {"name_ta": "சூரியகாந்தி எண்ணெய்", "name_en": "Sunflower Oil", "price": 160}
+      ]
+    },
+    {
+      "name_ta": "மளிகை பொருட்கள்",
+      "name_en": "Groceries",
+      "products": [
+        {"name_ta": "பருப்பு", "name_en": "Dal", "price": 95},
+        {"name_ta": "சர்க்கரை", "name_en": "Sugar", "price": 48},
+        {"name_ta": "உப்பு", "name_en": "Salt", "price": 18}
+      ]
+    }
+  ]
+}
