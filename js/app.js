@@ -170,7 +170,7 @@ function showScreen(name) {
   });
   closeCart(); closeNotif();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (name === 'my-orders')  loadUserOrders();
+  if (name === 'my-orders')  loadUserOrders(STATE.currentUser?.uid);
   if (name === 'profile')    loadProfileForm();
   if (name === 'checkout')   populateCheckoutSummary();
   if (name === 'wishlist')   renderWishlistScreen();
@@ -538,7 +538,7 @@ function renderFlashDeals() {
   const grid  = document.getElementById('dealsGrid');
   if (!grid) return;
   const deals = STATE.products.filter(p => p.hot && p.active !== false).slice(0, 4);
-  if (deals.length === 0) { document.getElementById('flashSection')?.style.setProperty('display','none'); return; }
+  if (deals.length === 0) { const fs = document.getElementById('flashSection'); if (fs) fs.style.display = 'none'; return; }
   grid.innerHTML = deals.map(p => {
     const discount = p.oldPrice > p.price ? Math.round((p.oldPrice - p.price) / p.oldPrice * 100) : 0;
     return `
@@ -563,7 +563,7 @@ function renderCarousel() {
   const track = document.getElementById('carouselTrack');
   if (!track) return;
   const newItems = STATE.products.filter(p => p.isNew && p.active !== false).slice(0, 10);
-  if (newItems.length === 0) { document.getElementById('newArrivalsSection')?.style.setProperty('display','none'); return; }
+  if (newItems.length === 0) { const na = document.getElementById('newArrivalsSection'); if (na) na.style.display = 'none'; return; }
   track.innerHTML = newItems.map(p => `
     <div class="carousel-card" onclick="openProductModal('${p.id}')">
       <div class="carousel-img">
@@ -1002,7 +1002,7 @@ async function applyCoupon() {
   const code = input.value.trim().toUpperCase();
   if (!code) { msg.textContent = 'Please enter a coupon code.'; msg.className = 'coupon-msg error'; return; }
 
-  if (!FM.checkRateLimit('coupon', 5)) { msg.textContent = 'Too many attempts. Try again later.'; msg.className = 'coupon-msg error'; return; }
+  if (window.FM && !FM.checkRateLimit('coupon', 5)) { msg.textContent = 'Too many attempts. Try again later.'; msg.className = 'coupon-msg error'; return; }
 
   if (btn) btn.disabled = true;
   msg.textContent = 'Verifying…';
@@ -1399,7 +1399,7 @@ async function loadUserOrders(uid) {
   }
 
   try {
-    const snap = await FM.db.collection('orders').where('uid','==',userId).orderBy('createdAt','desc').limit(30).get();
+    const snap = await FM.db.collection('orders').where('uid','==',userId).limit(50).get();
     if (snap.empty) {
       listEl.innerHTML = `<div class="orders-empty">
         <div class="orders-empty-icon">📦</div>
@@ -1409,7 +1409,12 @@ async function loadUserOrders(uid) {
       </div>`;
       return;
     }
-    listEl.innerHTML = snap.docs.map(doc => {
+    const sortedDocs = snap.docs.slice().sort((a, b) => {
+      const aTime = a.data().createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
+      const bTime = b.data().createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
+      return bTime - aTime;
+    });
+    listEl.innerHTML = sortedDocs.map(doc => {
       const o = doc.data();
       const id = doc.id;
       const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
